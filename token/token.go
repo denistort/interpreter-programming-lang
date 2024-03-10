@@ -29,3 +29,16 @@ const (
 	LBRACE = "{"
 	RBRACE = "}"
 )
+
+var Keywords = map[string]Type{
+	"fn":  FUNCTION,
+	"let": LET,
+}
+
+func LookupIdent(ident string) Type {
+	if tok, ok := Keywords[ident]; ok {
+		return tok
+	} else {
+		return IDENTIFIER
+	}
+}
