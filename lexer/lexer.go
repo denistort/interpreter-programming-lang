@@ -31,8 +31,23 @@ func (lexer *Lexer) NextToken() token.Token {
 	var nextToken token.Token
 	lexer.skipWhiteSpace()
 	switch lexer.character {
+	// Operators
 	case '=':
 		nextToken = newToken(token.ASSIGN, lexer.character)
+	case '+':
+		nextToken = newToken(token.PLUS, lexer.character)
+	case '-':
+		nextToken = newToken(token.MINUS, lexer.character)
+	case '*':
+		nextToken = newToken(token.MULTIPLY, lexer.character)
+	case '/':
+		nextToken = newToken(token.DIVIDE, lexer.character)
+	case '>':
+		nextToken = newToken(token.GraterThan, lexer.character)
+	case '<':
+		nextToken = newToken(token.LessThan, lexer.character)
+	case '!':
+		nextToken = newToken(token.NOT, lexer.character)
 	case ';':
 		nextToken = newToken(token.SEMICOLON, lexer.character)
 	case '(':
@@ -45,8 +60,6 @@ func (lexer *Lexer) NextToken() token.Token {
 		nextToken = newToken(token.RBRACE, lexer.character)
 	case ',':
 		nextToken = newToken(token.COMMA, lexer.character)
-	case '+':
-		nextToken = newToken(token.PLUS, lexer.character)
 	case 0:
 		nextToken.Literal = ""
 		nextToken.Type = token.EOF
@@ -87,7 +100,6 @@ func (lexer *Lexer) skipWhiteSpace() {
 	reg := regexp.MustCompile(`(?m)\s`)
 	for reg.MatchString(string(lexer.character)) {
 		lexer.readCharacter()
-
 	}
 }
 
