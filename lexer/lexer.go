@@ -16,7 +16,7 @@ func New(textStream string) *Lexer {
 }
 
 func (lexer *Lexer) readCharacter() {
-	if lexer.position >= len(lexer.textStream) {
+	if lexer.readPosition >= len(lexer.textStream) {
 		lexer.character = 0
 	} else {
 		lexer.character = lexer.textStream[lexer.readPosition]
