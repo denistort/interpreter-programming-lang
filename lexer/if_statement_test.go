@@ -11,6 +11,10 @@ func TestIfStatement(t *testing.T) {
 	if (1 > 2) {
 		weqwe = 2;
 	}
+
+	if (1 != 2) {
+		weqwe = 3;
+	}
 	`
 	tests := []ExpectedToken{
 		{token.LET, "let"},
@@ -28,6 +32,20 @@ func TestIfStatement(t *testing.T) {
 		{token.IDENTIFIER, "weqwe"},
 		{token.ASSIGN, "="},
 		{token.INT, "2"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACE, "}"},
+
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.INT, "1"},
+		{token.NOT_EQUALS, "!="},
+		{token.INT, "2"},
+		{token.RPAREN, ")"},
+
+		{token.LBRACE, "{"},
+		{token.IDENTIFIER, "weqwe"},
+		{token.ASSIGN, "="},
+		{token.INT, "3"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 

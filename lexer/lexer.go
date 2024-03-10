@@ -6,14 +6,15 @@ import (
 )
 
 type Lexer struct {
-	textStream   string
-	position     int
-	readPosition int
-	character    byte
+	textStream       string
+	position         int
+	readPosition     int
+	character        byte
+	textStreamLength int
 }
 
 func New(textStream string) *Lexer {
-	lexer := &Lexer{textStream: textStream}
+	lexer := &Lexer{textStream: textStream, textStreamLength: len(textStream)}
 	lexer.readCharacter()
 	return lexer
 }
@@ -30,36 +31,49 @@ func (lexer *Lexer) readCharacter() {
 func (lexer *Lexer) NextToken() token.Token {
 	var nextToken token.Token
 	lexer.skipWhiteSpace()
+	symbol := string(lexer.character)
 	switch lexer.character {
 	// Operators
 	case '=':
-		nextToken = newToken(token.ASSIGN, lexer.character)
+		if lexer.peekChar() == '=' {
+			previousSymbol := string(lexer.character)
+			lexer.readCharacter()
+			nextToken = newToken(token.EQUALS, previousSymbol+string(lexer.character))
+		} else {
+			nextToken = newToken(token.ASSIGN, symbol)
+		}
 	case '+':
-		nextToken = newToken(token.PLUS, lexer.character)
+		nextToken = newToken(token.PLUS, symbol)
 	case '-':
-		nextToken = newToken(token.MINUS, lexer.character)
+		nextToken = newToken(token.MINUS, symbol)
 	case '*':
-		nextToken = newToken(token.MULTIPLY, lexer.character)
+		nextToken = newToken(token.MULTIPLY, symbol)
 	case '/':
-		nextToken = newToken(token.DIVIDE, lexer.character)
+		nextToken = newToken(token.DIVIDE, symbol)
 	case '>':
-		nextToken = newToken(token.GraterThan, lexer.character)
+		nextToken = newToken(token.GraterThan, symbol)
 	case '<':
-		nextToken = newToken(token.LessThan, lexer.character)
+		nextToken = newToken(token.LessThan, symbol)
 	case '!':
-		nextToken = newToken(token.NOT, lexer.character)
+		if lexer.peekChar() == '=' {
+			previousCharacter := symbol
+			lexer.readCharacter()
+			nextToken = newToken(token.NOT_EQUALS, previousCharacter+string(lexer.character))
+		} else {
+			nextToken = newToken(token.NOT, symbol)
+		}
 	case ';':
-		nextToken = newToken(token.SEMICOLON, lexer.character)
+		nextToken = newToken(token.SEMICOLON, symbol)
 	case '(':
-		nextToken = newToken(token.LPAREN, lexer.character)
+		nextToken = newToken(token.LPAREN, symbol)
 	case ')':
-		nextToken = newToken(token.RPAREN, lexer.character)
+		nextToken = newToken(token.RPAREN, symbol)
 	case '{':
-		nextToken = newToken(token.LBRACE, lexer.character)
+		nextToken = newToken(token.LBRACE, symbol)
 	case '}':
-		nextToken = newToken(token.RBRACE, lexer.character)
+		nextToken = newToken(token.RBRACE, symbol)
 	case ',':
-		nextToken = newToken(token.COMMA, lexer.character)
+		nextToken = newToken(token.COMMA, symbol)
 	case 0:
 		nextToken.Literal = ""
 		nextToken.Type = token.EOF
@@ -74,7 +88,7 @@ func (lexer *Lexer) NextToken() token.Token {
 			nextToken.Type = token.INT
 			return nextToken
 		} else {
-			nextToken = newToken(token.ILLEGAL, lexer.character)
+			nextToken = newToken(token.ILLEGAL, symbol)
 		}
 	}
 	lexer.readCharacter()
@@ -103,12 +117,20 @@ func (lexer *Lexer) skipWhiteSpace() {
 	}
 }
 
+func (lexer *Lexer) peekChar() byte {
+	if lexer.readPosition >= lexer.textStreamLength {
+		return 0
+	} else {
+		return lexer.textStream[lexer.readPosition]
+	}
+}
+
 /**
 utilities
 */
 
-func newToken(tokenType token.Type, character byte) token.Token {
-	return token.Token{Type: tokenType, Literal: string(character)}
+func newToken(tokenType token.Type, character string) token.Token {
+	return token.Token{Type: tokenType, Literal: character}
 }
 
 func isLetter(char byte) bool {

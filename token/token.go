@@ -30,6 +30,8 @@ const (
 	MINUS      = "-"
 	MULTIPLY   = "*"
 	DIVIDE     = "/"
+	EQUALS     = "EQUALS"
+	NOT_EQUALS = "NOT_EQUALS"
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
