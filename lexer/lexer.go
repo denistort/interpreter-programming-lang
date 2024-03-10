@@ -1,6 +1,9 @@
 package lexer
 
-import "interpreter/token"
+import (
+	"interpreter/token"
+	"regexp"
+)
 
 type Lexer struct {
 	textStream   string
@@ -26,6 +29,7 @@ func (lexer *Lexer) readCharacter() {
 }
 func (lexer *Lexer) NextToken() token.Token {
 	var nextToken token.Token
+	lexer.skipWhiteSpace()
 	switch lexer.character {
 	case '=':
 		nextToken = newToken(token.ASSIGN, lexer.character)
@@ -46,11 +50,59 @@ func (lexer *Lexer) NextToken() token.Token {
 	case 0:
 		nextToken.Literal = ""
 		nextToken.Type = token.EOF
+	default:
+		if isLetter(lexer.character) {
+			nextToken.Literal = lexer.readIdentifier()
+			nextToken.Type = token.LookupIdent(nextToken.Literal)
+			return nextToken
+		}
+		if IsDigit(lexer.character) {
+			nextToken.Literal = lexer.readNumber()
+			nextToken.Type = token.INT
+			return nextToken
+		} else {
+			nextToken = newToken(token.ILLEGAL, lexer.character)
+		}
 	}
 	lexer.readCharacter()
 	return nextToken
 }
 
+func (lexer *Lexer) readIdentifier() string {
+	position := lexer.position
+	for isLetter(lexer.character) {
+		lexer.readCharacter()
+	}
+	return lexer.textStream[position:lexer.position]
+}
+func (lexer *Lexer) readNumber() string {
+	position := lexer.position
+	for IsDigit(lexer.character) {
+		lexer.readCharacter()
+	}
+	return lexer.textStream[position:lexer.position]
+}
+
+func (lexer *Lexer) skipWhiteSpace() {
+	reg := regexp.MustCompile(`(?m)\s`)
+	for reg.MatchString(string(lexer.character)) {
+		lexer.readCharacter()
+
+	}
+}
+
+/**
+utilities
+*/
+
 func newToken(tokenType token.Type, character byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(character)}
+}
+
+func isLetter(char byte) bool {
+	return regexp.MustCompile(`(?m)[a-zA-Z]`).MatchString(string(char)) || char == '_'
+}
+
+func IsDigit(character byte) bool {
+	return regexp.MustCompile(`(?m)\d`).MatchString(string(character))
 }
